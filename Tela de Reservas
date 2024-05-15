@@ -1,41 +1,142 @@
 import tkinter as tk
 from tkinter import messagebox
 
-class ReservaApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Reservas")
+class TelaReservas:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Tela de Reservas")
+        self.master.configure(background='#808080')  # Cor de fundo cinza
         
-        self.nome_label = tk.Label(root, text="Nome:")
-        self.nome_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        self.frame = tk.Frame(master, padx=20, pady=20, bg='#d3d3d3')  # Cor de fundo do frame
+        self.frame.place(relx=0.5, rely=0.5, anchor='center')  # Centralizando o frame
         
-        self.nome_entry = tk.Entry(root)
-        self.nome_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.salas_sede = {
+            "Lab Sede 1": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"],
+            "Lab Sede 2": ["09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"],
+            "Lab Sede 3": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"],
+            "Lab Sede 4": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"],
+            "Lab Sede 5": ["09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"],
+            "Lab Sede 6": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
+        }
         
-        self.data_label = tk.Label(root, text="Data:")
-        self.data_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        self.salas_ctu = {
+            "Lab CTU 1": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"],
+            "Lab CTU 2": ["09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"],
+            "Lab CTU 3": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"],
+            "Lab CTU 4": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"],
+            "Lab CTU 5": ["09:30", "10:30", "11:30", "12:30", "13:30", "14:30", "15:30", "16:30", "17:30"],
+            "Lab CTU 6": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
+        }
         
-        self.data_entry = tk.Entry(root)
-        self.data_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.lb_prédio = tk.Label(self.frame, text="Escolha o prédio:", bg='#d3d3d3')
+        self.lb_prédio.grid(row=0, column=0, columnspan=3, padx=10, pady=5)
         
-        self.hora_label = tk.Label(root, text="Hora:")
-        self.hora_label.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        self.btn_sede = tk.Button(self.frame, text="Prédio Sede", command=self.prédio_sede)
+        self.btn_sede.grid(row=1, column=0, padx=10, pady=5)
+        self.btn_sede.bind("<Enter>", lambda event: self.btn_sede.config(bg="lightblue"))
+        self.btn_sede.bind("<Leave>", lambda event: self.btn_sede.config(bg="SystemButtonFace"))
         
-        self.hora_entry = tk.Entry(root)
-        self.hora_entry.grid(row=2, column=1, padx=10, pady=5)
+        self.btn_ctu = tk.Button(self.frame, text="Prédio CTU", command=self.prédio_ctu)
+        self.btn_ctu.grid(row=1, column=1, padx=10, pady=5)
+        self.btn_ctu.bind("<Enter>", lambda event: self.btn_ctu.config(bg="lightblue"))
+        self.btn_ctu.bind("<Leave>", lambda event: self.btn_ctu.config(bg="SystemButtonFace"))
         
-        self.reservar_button = tk.Button(root, text="Reservar", command=self.reservar)
-        self.reservar_button.grid(row=3, columnspan=2, padx=10, pady=10)
-
+        self.btn_limpar = tk.Button(self.frame, text="Limpar Campos", command=self.limpar_campos, state=tk.DISABLED)  # Botão desativado inicialmente
+        self.btn_limpar.grid(row=1, column=2, padx=10, pady=5)
+        self.btn_limpar.bind("<Enter>", lambda event: self.btn_limpar.config(bg="lightblue"))
+        self.btn_limpar.bind("<Leave>", lambda event: self.btn_limpar.config(bg="SystemButtonFace"))
+        
+        self.lb_sala = tk.Label(self.frame, text="Escolha o Lab:", bg='#d3d3d3')
+        self.lb_sala.grid(row=2, column=0, padx=10, pady=5)
+        
+        self.opcoes_sala = tk.StringVar(master)
+        self.menu_sala = tk.OptionMenu(self.frame, self.opcoes_sala, "")
+        self.menu_sala.grid(row=2, column=1, columnspan=2, padx=10, pady=5)
+        
+        self.lb_horario = tk.Label(self.frame, text="Escolha o horário:", bg='#d3d3d3')
+        self.lb_horario.grid(row=3, column=0, padx=10, pady=5)
+        
+        self.opcoes_horario = tk.StringVar(master)
+        self.opcoes_horario.set("Selecione")
+        self.menu_horario = tk.OptionMenu(self.frame, self.opcoes_horario, "Selecione")
+        self.menu_horario.grid(row=3, column=1, columnspan=2, padx=10, pady=5)
+        
+        self.btn_reservar = tk.Button(self.frame, text="Reservar", command=self.reservar)
+        self.btn_reservar.grid(row=4, column=0, columnspan=3, padx=10, pady=5)
+        self.btn_reservar.bind("<Enter>", lambda event: self.btn_reservar.config(bg="lightblue"))
+        self.btn_reservar.bind("<Leave>", lambda event: self.btn_reservar.config(bg="SystemButtonFace"))
+        
+        self.prédio_selecionado = None
+        
+    def prédio_sede(self):
+        self.opcoes_sala.set("Selecione")
+        menu = self.menu_sala["menu"]
+        menu.delete(0, "end")
+        for sala in self.salas_sede.keys():
+            menu.add_command(label=sala, command=lambda sala=sala: self.opcoes_sala.set(sala))
+        self.prédio_selecionado = "Prédio Sede"
+        self.atualizar_opcoes_horario()
+        self.btn_limpar.config(state=tk.NORMAL)  # Ativa o botão limpar campos
+        
+    def prédio_ctu(self):
+        self.opcoes_sala.set("Selecione")
+        menu = self.menu_sala["menu"]
+        menu.delete(0, "end")
+        for sala in self.salas_ctu.keys():
+            menu.add_command(label=sala, command=lambda sala=sala: self.opcoes_sala.set(sala))
+        self.prédio_selecionado = "Prédio CTU"
+        self.atualizar_opcoes_horario()
+        self.btn_limpar.config(state=tk.NORMAL)  # Ativa o botão limpar campos
+        
+    def limpar_campos(self):
+        self.opcoes_sala.set("Selecione")
+        self.opcoes_horario.set("Selecione")
+        self.prédio_selecionado = None
+        self.btn_limpar.config(state=tk.DISABLED)  # Desativa o botão limpar campos
+        
+    def atualizar_opcoes_horario(self):
+        sala_selecionada = self.opcoes_sala.get()
+        horarios_disponiveis = []
+        if self.prédio_selecionado == "Prédio Sede":
+            horarios_disponiveis = self.salas_sede.get(sala_selecionada, [])
+        elif self.prédio_selecionado == "Prédio CTU":
+            horarios_disponiveis = self.salas_ctu.get(sala_selecionada, [])
+        
+        menu = self.menu_horario["menu"]
+        menu.delete(0, "end")
+        if horarios_disponiveis:
+            for horario in horarios_disponiveis:
+                menu.add_command(label=horario, command=lambda hora=horario: self.opcoes_horario.set(hora))
+        else:
+            self.opcoes_horario.set("Selecione")
+            menu.add_command(label="Selecione", command=lambda: self.opcoes_horario.set("Selecione"))
+        
     def reservar(self):
-        nome = self.nome_entry.get()
-        data = self.data_entry.get()
-        hora = self.hora_entry.get()
-        
-        # Aqui você pode adicionar a lógica para salvar a reserva em um banco de dados ou arquivo
-        messagebox.showinfo("Reserva Confirmada", f"Reserva realizada para {nome} na data {data} às {hora}.")
+        sala = self.opcoes_sala.get()
+        horario = self.opcoes_horario.get()
+        if self.prédio_selecionado is None or sala == "Selecione" or horario == "Selecione":
+            messagebox.showerror("Erro", "Por favor, selecione o prédio, sala e horário.")
+        else:
+            messagebox.showinfo("Reserva Confirmada", f"Você reservou o {self.prédio_selecionado}, {sala} para às {horario}.")
+
+def main():
+    root = tk.Tk()
+    largura_tela = root.winfo_screenwidth()
+    altura_tela = root.winfo_screenheight()
+    largura_janela = 400
+    altura_janela = 300
+    posicao_x = (largura_tela - largura_janela) // 2
+    posicao_y = (altura_tela - altura_janela) // 2
+    root.geometry(f'{largura_janela}x{altura_janela}+{posicao_x}+{posicao_y}')
+    
+    tela = TelaReservas(root)
+    root.mainloop()
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = ReservaApp(root)
-    root.mainloop()
+    main()
+
+
+
+
+
+
