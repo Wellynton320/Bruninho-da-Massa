@@ -38,12 +38,10 @@ def abrir_janela_cadastro():
         else:
             messagebox.showwarning("Aviso", "Por favor, preencha todos os campos.")
 
-    # Janela de cadastro
     janela_cadastro = tk.Toplevel(janela)
     janela_cadastro.title("Cadastro de Usuário")
     janela_cadastro.configure(bg="lightgrey")
 
-    # Configurando a geometria para uma caixa no meio da tela
     largura_janela_cadastro = 300  # Largura da janela de cadastro
     altura_janela_cadastro = 200  # Altura da janela de cadastro
     largura_tela_cadastro = janela_cadastro.winfo_screenwidth()
@@ -52,7 +50,6 @@ def abrir_janela_cadastro():
     posicao_y_cadastro = (altura_tela_cadastro - altura_janela_cadastro) // 2
     janela_cadastro.geometry(f"{largura_janela_cadastro}x{altura_janela_cadastro}+{posicao_x_cadastro}+{posicao_y_cadastro}")
 
-    # Frames para organização
     frame_cadastro = tk.Frame(janela_cadastro, padx=10, pady=10, bg="lightgrey", relief=tk.SOLID, borderwidth=2, highlightthickness=2, highlightbackground="lightgrey")  # Fundo cinza e bordas arredondadas
     frame_cadastro.pack(expand=True, fill="both")
 
@@ -65,19 +62,16 @@ def abrir_janela_cadastro():
     senha_cadastro.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
     botao_cadastrar = tk.Button(frame_cadastro, text="Cadastrar", bg="#6699CC", fg="white", command=cadastrar_usuario)
-    botao_cadastrar.grid(row=2, columnspan=2, pady=10, padx=50, sticky="ew")  # Aumentei o padding x
+    botao_cadastrar.grid(row=2, columnspan=2, pady=10, padx=50, sticky="ew")  
 
-    # Adicionando eventos para mudar a aparência dos botões quando o cursor do mouse passa por cima deles
     botao_cadastrar.bind("<Enter>", lambda event: botao_cadastrar.config(bg="lightblue"))
     botao_cadastrar.bind("<Leave>", lambda event: botao_cadastrar.config(bg="#6699CC"))
 
     janela_cadastro.mainloop()
 
-# Janela principal
 janela = tk.Tk()
 janela.title("Login")
 
-# Configurando a geometria para uma caixa no meio da tela
 largura_janela = 400  # Largura aumentada
 altura_janela = 300  # Altura aumentada para mais da metade da tela
 largura_tela = janela.winfo_screenwidth()
@@ -118,4 +112,3 @@ botao_cadastro.bind("<Enter>", lambda event: botao_cadastro.config(bg="lightblue
 botao_cadastro.bind("<Leave>", lambda event: botao_cadastro.config(bg="#6699CC"))
 
 janela.mainloop()
-
