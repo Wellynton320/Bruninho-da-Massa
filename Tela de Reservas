@@ -5,11 +5,10 @@ class TelaReservas:
     def __init__(self, master):
         self.master = master
         self.master.title("Tela de Reservas")
-        self.master.configure(background='#333333')  # Cor de fundo cinza escuro
+        self.master.configure(background='#333333')
         
-        # Frame principal com borda arredondada e cor de fundo cinza claro
         self.frame_principal = tk.Frame(master, padx=20, pady=20, bg='#E0E0E0', bd=2, relief=tk.GROOVE, highlightbackground="#6699CC", highlightthickness=2)
-        self.frame_principal.place(relx=0.5, rely=0.5, anchor='center')  # Centralizando o frame
+        self.frame_principal.place(relx=0.5, rely=0.5, anchor='center')
         
         self.salas = ["CTU Lab 1", "CTU Lab 2", "CTU Lab 3", "CTU Lab 4", "CTU Lab 5", "CTU Lab 6"]
         self.horarios = self.gerar_horarios()
@@ -34,9 +33,8 @@ class TelaReservas:
         self.btn_limpar = tk.Button(self.frame_principal, text="Limpar Campos", command=self.limpar_campos)
         self.btn_limpar.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
         
-        # Adicionando eventos para destacar o botão "Limpar Campos" quando o cursor do mouse passar por cima dele
         self.btn_limpar.bind("<Enter>", lambda event: self.btn_limpar.config(bg="lightblue"))
-        self.btn_limpar.bind("<Leave>", lambda event: self.btn_limpar.config(bg='#E0E0E0'))  # Voltando à cor original
+        self.btn_limpar.bind("<Leave>", lambda event: self.btn_limpar.config(bg='#E0E0E0'))  
         
     def gerar_horarios(self):
         horarios = []
