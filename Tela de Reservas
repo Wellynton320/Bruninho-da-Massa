@@ -1,79 +1,88 @@
+import sqlite3
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 
-class TelaReservas:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("Tela de Reservas")
-        self.master.configure(background='#333333')
-        
-        self.frame_principal = tk.Frame(master, padx=20, pady=20, bg='#E0E0E0', bd=2, relief=tk.GROOVE, highlightbackground="#6699CC", highlightthickness=2)
-        self.frame_principal.place(relx=0.5, rely=0.5, anchor='center')
-        
-        self.salas = ["CTU Lab 1", "CTU Lab 2", "CTU Lab 3", "CTU Lab 4", "CTU Lab 5", "CTU Lab 6"]
-        self.horarios = self.gerar_horarios()
-        
-        self.lb_sala = tk.Label(self.frame_principal, text="Escolha a sala:", bg='#E0E0E0', fg="black")  # Mudança na cor do texto para preto
-        self.lb_sala.grid(row=0, column=0, padx=10, pady=5)
-        
-        self.opcoes_sala = tk.StringVar(master)
-        self.menu_sala = tk.OptionMenu(self.frame_principal, self.opcoes_sala, *self.salas)
-        self.menu_sala.grid(row=0, column=1, padx=10, pady=5)
-        
-        self.lb_horario = tk.Label(self.frame_principal, text="Escolha o horário:", bg='#E0E0E0', fg="black")  # Mudança na cor do texto para preto
-        self.lb_horario.grid(row=1, column=0, padx=10, pady=5)
-        
-        self.opcoes_horario = tk.StringVar(master)
-        self.menu_horario = tk.OptionMenu(self.frame_principal, self.opcoes_horario, *self.horarios)
-        self.menu_horario.grid(row=1, column=1, padx=10, pady=5)
-        
-        self.btn_reservar = tk.Button(self.frame_principal, text="Reservar", command=self.reservar, bg='#6699CC', fg="white")  # Mudança na cor de fundo para azul e cor do texto para branco
-        self.btn_reservar.grid(row=2, column=0, columnspan=2, padx=10, pady=5)
-        
-        self.btn_limpar = tk.Button(self.frame_principal, text="Limpar Campos", command=self.limpar_campos)
-        self.btn_limpar.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
-        
-        self.btn_limpar.bind("<Enter>", lambda event: self.btn_limpar.config(bg="lightblue"))
-        self.btn_limpar.bind("<Leave>", lambda event: self.btn_limpar.config(bg='#E0E0E0'))  
-        
-    def gerar_horarios(self):
-        horarios = []
-        hora_inicial = 19
-        minuto_inicial = 0
-        intervalo = 40
-        
-        while hora_inicial < 23:
-            horarios.append("{:02d}:{:02d}".format(hora_inicial, minuto_inicial))
-            minuto_inicial += intervalo
-            if minuto_inicial >= 60:
-                hora_inicial += 1
-                minuto_inicial -= 60
-        
-        return horarios
-        
-    def reservar(self):
-        sala = self.opcoes_sala.get()
-        horario = self.opcoes_horario.get()
-        if sala and horario:
-            messagebox.showinfo("Reserva Confirmada", f"Você reservou o {sala} para às {horario}.")
-        else:
-            messagebox.showerror("Erro", "Por favor, selecione a sala e o horário.")
-            
-    def limpar_campos(self):
-        self.opcoes_sala.set("")
-        self.opcoes_horario.set("")
+# Função para validar entradas numéricas
+def validar_numeros(input):
+    if input.isdigit() or input == "":
+        return True
+    else:
+        return False
+
+# Função para configurar o banco de dados
+def configurar_banco():
+    conn = sqlite3.connect('salas.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS salas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            capacidade INTEGER NOT NULL,
+            localizacao TEXT NOT NULL,
+            equipamentos TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Função para cadastrar a sala no banco de dados
+def cadastrar_sala():
+    nome = nome_entry.get()
+    capacidade = capacidade_entry.get()
+    localizacao = localizacao_var.get()
+    equipamentos = equipamentos_entry.get()
+
+    conn = sqlite3.connect('salas.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO salas (nome, capacidade, localizacao, equipamentos)
+        VALUES (?, ?, ?, ?)
+    ''', (nome, capacidade, localizacao, equipamentos))
+    conn.commit()
+    conn.close()
+
+    messagebox.showinfo("Sucesso", "Sala cadastrada com sucesso!")
 
 def main():
     root = tk.Tk()
-    largura_tela = root.winfo_screenwidth()
-    altura_tela = root.winfo_screenheight()
-    largura_janela = 300
-    altura_janela = 200
-    posicao_x = (largura_tela - largura_janela) // 2
-    posicao_y = (altura_tela - altura_janela) // 2
-    root.geometry(f'{largura_janela}x{altura_janela}+{posicao_x}+{posicao_y}')
+    root.title("Cadastro de Salas")
+    root.geometry("400x300")
+    root.resizable(False, False)
     
-    tela = TelaReservas(root)
+    frame = ttk.Frame(root, padding="20 20 20 20")
+    frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+    for i in range(4):
+        frame.rowconfigure(i, weight=1)
+        frame.columnconfigure(i, weight=1)
+
+    ttk.Label(frame, text="Nome da sala:").grid(row=0, column=0, sticky="e", padx=10, pady=5)
+    ttk.Label(frame, text="Capacidade da sala:").grid(row=1, column=0, sticky="e", padx=10, pady=5)
+    ttk.Label(frame, text="Localização da sala:").grid(row=2, column=0, sticky="e", padx=10, pady=5)
+    ttk.Label(frame, text="Equipamentos disponíveis (separados por vírgula):").grid(row=3, column=0, sticky="e", padx=10, pady=5)
+
+    global nome_entry, capacidade_entry, localizacao_var, equipamentos_entry
+    nome_entry = ttk.Entry(frame, width=30)
+    capacidade_entry = ttk.Entry(frame, width=30, validate="key")
+    capacidade_entry['validatecommand'] = (capacidade_entry.register(validar_numeros), '%S')
+    equipamentos_entry = ttk.Entry(frame, width=30)
+
+    nome_entry.grid(row=0, column=1, padx=10, pady=5)
+    capacidade_entry.grid(row=1, column=1, padx=10, pady=5)
+    equipamentos_entry.grid(row=3, column=1, padx=10, pady=5)
+
+    localizacao_var = tk.StringVar(root)
+    localizacao_combobox = ttk.Combobox(frame, textvariable=localizacao_var, values=["Prédio Sede", "Prédio CTU"], state="readonly")
+    localizacao_combobox.grid(row=2, column=1, padx=10, pady=5)
+    localizacao_combobox.current(0)
+
+    cadastrar_button = ttk.Button(frame, text="Cadastrar Sala", command=cadastrar_sala)
+    cadastrar_button.grid(row=4, columnspan=2, pady=20)
+
+    # Configura o banco de dados ao iniciar a aplicação
+    configurar_banco()
+
     root.mainloop()
 
 if __name__ == "__main__":
