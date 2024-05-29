@@ -61,7 +61,7 @@ class TelaReservas:
         
         if sala and horario:
             if horario in self.reservas[sala]:
-                messagebox.showerror("Erro", f"O {sala} já está reservado para às {horario}.")
+                messagebox.showerror("Erro", "Por favor, selecione a sala e o horário.")
             else:
                 self.reservas[sala].append(horario)
                 messagebox.showinfo("Reserva Confirmada", f"Você reservou o {sala} para às {horario}.")
