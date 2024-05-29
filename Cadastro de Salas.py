@@ -1,109 +1,63 @@
 import tkinter as tk
 from tkinter import messagebox
+import sqlite3
 
-usuarios_cadastrados = {
-    "usuario1": "senha1",
-    "usuario2": "senha2"
-}
+class SalaCadastroApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Cadastro de Salas")
 
-def verificar_usuario(email, senha):
-    return email in usuarios_cadastrados and usuarios_cadastrados[email] == senha
+        self.root.geometry("300x250")
 
-def fazer_login():
-    email = email_login.get().strip()
-    senha = senha_login.get().strip()
-    if email and senha:
-        if verificar_usuario(email, senha):
-            messagebox.showinfo("Login", "Login bem-sucedido!")
+        self.conn = sqlite3.connect('salas.db')
+        self.cursor = self.conn.cursor()
+        self.criar_tabela()
+
+        self.label_nome = tk.Label(root, text="Nome da Sala:")
+        self.label_nome.pack(pady=5)
+        self.entry_nome = tk.Entry(root)
+        self.entry_nome.pack(pady=5)
+
+        self.label_numero = tk.Label(root, text="Número da Sala:")
+        self.label_numero.pack(pady=5)
+        self.entry_numero = tk.Entry(root)
+        self.entry_numero.pack(pady=5)
+
+        self.label_predio = tk.Label(root, text="Prédio:")
+        self.label_predio.pack(pady=5)
+        self.entry_predio = tk.Entry(root)
+        self.entry_predio.pack(pady=5)
+
+        self.button_salvar = tk.Button(root, text="Salvar", command=self.salvar_sala)
+        self.button_salvar.pack(pady=20)
+
+    def criar_tabela(self):
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS salas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome TEXT NOT NULL,
+                numero TEXT NOT NULL,
+                predio TEXT NOT NULL
+            )
+        ''')
+        self.conn.commit()
+
+    def salvar_sala(self):
+        nome = self.entry_nome.get()
+        numero = self.entry_numero.get()
+        predio = self.entry_predio.get()
+
+        if nome and numero and predio:
+            self.cursor.execute('INSERT INTO salas (nome, numero, predio) VALUES (?, ?, ?)', (nome, numero, predio))
+            self.conn.commit()
+            messagebox.showinfo("Sucesso", f"Sala '{nome}' no prédio '{predio}' com número '{numero}' cadastrada com sucesso!")
         else:
-            messagebox.showerror("Erro", "E-mail ou senha incorretos.")
-    else:
-        messagebox.showwarning("Aviso", "Por favor, preencha todos os campos.")
+            messagebox.showwarning("Atenção", "Por favor, preencha todos os campos.")
 
-def abrir_janela_cadastro():
-    def cadastrar_usuario():
-        novo_email = email_cadastro.get().strip()
-        nova_senha = senha_cadastro.get().strip()
-        if novo_email and nova_senha:
-            if "@" not in novo_email:
-                messagebox.showerror("Erro", "E-mail inválido. Por favor, insira um e-mail válido.")
-            elif novo_email in usuarios_cadastrados:
-                messagebox.showerror("Erro", "Este e-mail já está em uso. Por favor, escolha outro.")
-            else:
-                usuarios_cadastrados[novo_email] = nova_senha
-                messagebox.showinfo("Cadastro", "Usuário cadastrado com sucesso!")
-                janela_cadastro.destroy()
-        else:
-            messagebox.showwarning("Aviso", "Por favor, preencha todos os campos.")
+    def __del__(self):
+        self.conn.close()
 
-    janela_cadastro = tk.Toplevel(janela)
-    janela_cadastro.title("Cadastro de Usuário")
-    janela_cadastro.configure(bg="lightgrey")
-
-    largura_janela_cadastro = 300
-    altura_janela_cadastro = 200 
-    largura_tela_cadastro = janela_cadastro.winfo_screenwidth()
-    altura_tela_cadastro = janela_cadastro.winfo_screenheight()
-    posicao_x_cadastro = (largura_tela_cadastro - largura_janela_cadastro) // 2
-    posicao_y_cadastro = (altura_tela_cadastro - altura_janela_cadastro) // 2
-    janela_cadastro.geometry(f"{largura_janela_cadastro}x{altura_janela_cadastro}+{posicao_x_cadastro}+{posicao_y_cadastro}")
-
-    frame_cadastro = tk.Frame(janela_cadastro, padx=10, pady=10, bg="lightgrey", relief=tk.SOLID, borderwidth=2, highlightthickness=2, highlightbackground="lightgrey")  # Fundo cinza e bordas arredondadas
-    frame_cadastro.pack(expand=True, fill="both")
-
-    tk.Label(frame_cadastro, text="E-mail:", bg="lightgrey", fg="black").grid(row=0, column=0, sticky="w")
-    email_cadastro = tk.Entry(frame_cadastro, relief=tk.SOLID, borderwidth=1, highlightthickness=1, highlightbackground="lightgrey")
-    email_cadastro.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-    tk.Label(frame_cadastro, text="Senha:", bg="lightgrey", fg="black").grid(row=1, column=0, sticky="w")
-    senha_cadastro = tk.Entry(frame_cadastro, show="*", relief=tk.SOLID, borderwidth=1, highlightthickness=1, highlightbackground="lightgrey")
-    senha_cadastro.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
-    botao_cadastrar = tk.Button(frame_cadastro, text="Cadastrar", bg="#6699CC", fg="white", command=cadastrar_usuario)
-    botao_cadastrar.grid(row=2, columnspan=2, pady=10, padx=50, sticky="ew") 
-
-    botao_cadastrar.bind("<Enter>", lambda event: botao_cadastrar.config(bg="lightblue"))
-    botao_cadastrar.bind("<Leave>", lambda event: botao_cadastrar.config(bg="#6699CC"))
-
-    janela_cadastro.mainloop()
-
-janela = tk.Tk()
-janela.title("Login")
-
-largura_janela = 400 
-altura_janela = 300 
-largura_tela = janela.winfo_screenwidth()
-altura_tela = janela.winfo_screenheight()
-posicao_x = (largura_tela - largura_janela) // 2
-posicao_y = (altura_tela - altura_janela) // 2
-janela.geometry(f"{largura_janela}x{altura_janela}+{posicao_x}+{posicao_y}")
-
-frame_caixa = tk.Frame(janela, padx=10, pady=10, bg="#333333", relief=tk.SOLID, borderwidth=2, highlightthickness=2, highlightbackground="#333333")  # Fundo dark e bordas arredondadas
-frame_caixa.pack(expand=True)
-
-frame_login = tk.Frame(frame_caixa, bg="#333333")
-frame_login.pack(expand=True, fill="both")
-
-tk.Label(frame_login, text="E-mail:", bg="#333333", fg="white").grid(row=0, column=0, sticky="w")
-email_login = tk.Entry(frame_login, relief=tk.SOLID, borderwidth=1, highlightthickness=1, highlightbackground="#333333")
-email_login.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-tk.Label(frame_login, text="Senha:", bg="#333333", fg="white").grid(row=1, column=0, sticky="w")
-senha_login = tk.Entry(frame_login, show="*", relief=tk.SOLID, borderwidth=1, highlightthickness=1, highlightbackground="#333333")
-senha_login.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
-frame_botoes = tk.Frame(frame_caixa, bg="#333333")
-frame_botoes.pack(expand=True, fill="both")
-
-botao_login = tk.Button(frame_botoes, text="Login", bg="#6699CC", fg="white", command=fazer_login, width=10)
-botao_login.pack(side="left", padx=5, pady=10, expand=True)
-
-botao_cadastro = tk.Button(frame_botoes, text="Cadastro", bg="#6699CC", fg="white", command=abrir_janela_cadastro, width=10)
-botao_cadastro.pack(side="right", padx=5, pady=10, expand=True)
-
-botao_login.bind("<Enter>", lambda event: botao_login.config(bg="lightblue"))
-botao_login.bind("<Leave>", lambda event: botao_login.config(bg="#6699CC"))
-botao_cadastro.bind("<Enter>", lambda event: botao_cadastro.config(bg="lightblue"))
-botao_cadastro.bind("<Leave>", lambda event: botao_cadastro.config(bg="#6699CC"))
-
-janela.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = SalaCadastroApp(root)
+    root.mainloop()
